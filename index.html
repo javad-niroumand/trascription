@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Transactions</title>
+<style>
+body { font-family: Inter, sans-serif; margin:0; background:#0f1724; color:#e6eef8; }
+.wrap { max-width:420px; margin:0 auto; padding:16px; }
+.logo { display:block; width:120px; margin:0 auto 20px; }
+.card { background:#0b1220; border-radius:14px; padding:16px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+.user-info { text-align:center; }
+.user-info h2 { margin:0; font-size:20px; }
+.user-info p { margin:6px 0 0; color:#98a0b3; font-size:14px; }
+
+.transaction-list { list-style:none; padding:0; margin:0; }
+.transaction-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
+.transaction-item img { width:32px; height:32px; margin-right:12px; border-radius:6px; background:white; padding:4px; }
+.transaction-info { display:flex; align-items:center; gap:8px; }
+.transaction-name { font-size:15px; }
+.transaction-category { font-size:12px; color:#98a0b3; }
+.transaction-date { font-size:12px; color:#98a0b3; }
+.transaction-amount { font-weight:600; }
+
+.meta { display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:#98a0b3; }
+.btn { background:transparent; border:1px solid rgba(255,255,255,0.06); padding:6px 10px; border-radius:10px; color:#98a0b3; font-size:13px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<img class="logo" src="https://www.sskm.de/content/dam/myif/sskm/work/bilder/nbf-logos/logo_weiss.svg" alt="Bank Logo">
+
+<div class="card user-info">
+<h2 id="userName">—</h2>
+<p id="customerNumber">Kundennummer #—</p>
+</div>
+
+<div class="card">
+<strong>Letzte 7 Tage Transaktionen</strong>
+<ul class="transaction-list" id="transactionList"></ul>
+<div class="meta">
+<span>Zuletzt aktualisiert: <span id="lastUpdated">—</span></span>
+<button class="btn" id="refreshBtn">Aktualisieren</button>
+</div>
+</div>
+
+</div>
+
+<script>
+const transactions = [
+  {name:'Miete', category:'Rent', amount:1200, date:'2025-11-24', logo:'https://i.etsystatic.com/12773587/r/il/63d810/1121816918/il_570xN.1121816918_nwl8.jpg'},
+  {name:'Stromrechnung', category:'Electricity', amount:85, date:'2025-11-23', logo:'https://cdn-icons-png.flaticon.com/512/2910/2910766.png'},
+  {name:'Supermarkt', category:'Grocery', amount:145, date:'2025-11-22', logo:'https://cdn-icons-png.flaticon.com/512/1046/1046784.png'},
+  {name:'Flugticket Deutschland → Japan', category:'Flight', amount:820, date:'2025-11-24', logo:'https://cdn.vectorstock.com/i/1000v/47/08/airplane-icon-logo-template-vector-31964708.jpg'},
+  {name:'Hotel Tokyo', category:'Hotel', amount:400, date:'2025-11-24', logo:'https://i.pinimg.com/736x/b2/9d/3b/b29d3ba6ba2947ca5c79d1f14bd5bf53.jpg'},
+  {name:'Restaurant Sushi Bar', category:'Food', amount:65, date:'2025-11-23', logo:'https://cdn-icons-png.flaticon.com/512/1046/1046771.png'},
+  {name:'Tankstelle', category:'Fuel', amount:60, date:'2025-11-22', logo:'https://cdn-icons-png.flaticon.com/512/3075/3075977.png'},
+  {name:'Online Shop', category:'Shopping', amount:120, date:'2025-11-21', logo:'https://cdn-icons-png.flaticon.com/512/1170/1170678.png'}
+];
+
+function formatCurrency(n){ return '€'+n.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+function renderTransactions(){
+  const container = document.getElementById('transactionList');
+  container.innerHTML = '';
+  transactions.forEach(t=>{
+    const li = document.createElement('li');
+    li.className = 'transaction-item';
+    li.innerHTML = `
+      <div class="transaction-info">
+        <img src="${t.logo}" alt="${t.category}">
+        <div>
+          <div class="transaction-name">${t.name}</div>
+          <div class="transaction-category">${t.category} • <span class="transaction-date">${t.date}</span></div>
+        </div>
+      </div>
+      <div class="transaction-amount">${formatCurrency(t.amount)}</div>
+    `;
+    container.appendChild(li);
+  });
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+}
+
+// User info
+document.getElementById('userName').textContent = 'Eugen Ensinger';
+document.getElementById('customerNumber').textContent = 'Kundennummer #984321';
+
+// Refresh button
+document.getElementById('refreshBtn').addEventListener('click', renderTransactions);
+
+// Initial render
+renderTransactions();
+</script>
+</body>
+</html>
